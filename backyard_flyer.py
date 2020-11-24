@@ -37,10 +37,13 @@ class BackyardFlyer(Drone):
 
     def local_position_callback(self):
         if self.flight_state == States.TAKEOFF:
-            if -1.0 * self.local_position[2] > 0.95 * self.target_position[2]:
+        
+            if -1.0 * self.local_position[2] > 0.99 * self.target_position[2]:
+            
                 self.all_waypoints = self.calculate_box()
                 self.waypoint_transition()
         elif self.flight_state == States.WAYPOINT:
+            #provide efficient low level implementations of standard linear algebra algorithms
             if np.linalg.norm(self.target_position[0:2] - self.local_position[0:2]) < 1.0:
                 if len(self.all_waypoints) > 0:
                     self.waypoint_transition()
@@ -67,6 +70,7 @@ class BackyardFlyer(Drone):
 
     def calculate_box(self):
         print("Setting Home")
+        #Length of the box is 10, altitude is 3
         local_waypoints = [[10.0, 0.0, 3.0], [10.0, 10.0, 3.0], [0.0, 10.0, 3.0], [0.0, 0.0, 3.0]]
         return local_waypoints
 
@@ -89,8 +93,10 @@ class BackyardFlyer(Drone):
 
     def waypoint_transition(self):
         print("waypoint transition")
+        # Removes the element at a given index
         self.target_position = self.all_waypoints.pop(0)
         print('target position', self.target_position)
+        
         self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2], 0.0)
         self.flight_state = States.WAYPOINT
 
